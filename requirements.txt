@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+sqlalchemy
+google-generativeai
+jinja2
+python-dotenv
+pydantic
+pytest
+httpx
+razorpay

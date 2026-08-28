@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Revenue Recovery Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 24px;
+            bottom: -24px;
+            width: 2px;
+            background-color: #e5e7eb;
+        }
+        .timeline-item:last-child::before {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans text-gray-800">
+
+    <!-- Top Navigation -->
+    <nav class="bg-indigo-700 text-white shadow-md px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-shield-halved text-2xl text-yellow-400 animate-pulse"></i>
+            <span class="font-bold text-xl tracking-wider">Razorpay AI Revenue Recovery Hub</span>
+            <span class="bg-indigo-900 text-xs px-2.5 py-1 rounded-full font-semibold border border-indigo-500">Track 3</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span class="text-sm opacity-90"><i class="fa-regular fa-clock mr-1.5"></i>2026 Buildathon</span>
+            <button onclick="loadData()" class="bg-indigo-600 hover:bg-indigo-500 border border-indigo-500 rounded-md px-3 py-1.5 text-sm transition font-semibold">
+                <i class="fa-solid fa-rotate mr-1"></i> Refresh
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        
+        <!-- Stats Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-semibold text-gray-500 uppercase">Revenue at Risk</p>
+                    <p id="stat-total-leaked" class="text-2xl font-bold text-gray-900 mt-1">₹0.00</p>
+                </div>
+                <div class="p-3 bg-red-50 rounded-full text-red-500">
+                    <i class="fa-solid fa-chart-line text-2xl"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-semibold text-gray-500 uppercase">Recovered Revenue</p>
+                    <p id="stat-total-recovered" class="text-2xl font-bold text-emerald-600 mt-1">₹0.00</p>
+                </div>
+                <div class="p-3 bg-emerald-50 rounded-full text-emerald-500">
+                    <i class="fa-solid fa-sack-dollar text-2xl"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-semibold text-gray-500 uppercase">Recovery Rate</p>
+                    <p id="stat-recovery-rate" class="text-2xl font-bold text-indigo-600 mt-1">0.0%</p>
+                </div>
+                <div class="p-3 bg-indigo-50 rounded-full text-indigo-500">
+                    <i class="fa-solid fa-percentage text-2xl"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <p class="text-sm font-semibold text-gray-500 uppercase mb-2">Pipelines Status</p>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="flex items-center text-blue-600 font-semibold">
+                        <span class="w-2.5 h-2.5 bg-blue-500 rounded-full mr-1.5"></span>
+                        <span id="stat-active">0</span> Active
+                    </div>
+                    <div class="flex items-center text-emerald-600 font-semibold">
+                        <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full mr-1.5"></span>
+                        <span id="stat-recovered">0</span> Saved
+                    </div>
+                    <div class="flex items-center text-orange-600 font-semibold">
+                        <span class="w-2.5 h-2.5 bg-orange-500 rounded-full mr-1.5"></span>
+                        <span id="stat-optout">0</span> Opt-out
+                    </div>
+                    <div class="flex items-center text-gray-600 font-semibold">
+                        <span class="w-2.5 h-2.5 bg-gray-500 rounded-full mr-1.5"></span>
+                        <span id="stat-failed">0</span> Stopped
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Side: Simulator and Control Panel -->
+            <div class="space-y-6">
+                <!-- Control Panel -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4 flex items-center">
+                        <i class="fa-solid fa-gears text-indigo-600 mr-2"></i> Agent Controls
+                    </h2>
+                    
+                    <button onclick="processActivePipelines()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-md shadow-sm transition flex items-center justify-center space-x-2 text-sm">
+                        <i class="fa-solid fa-robot"></i>
+                        <span>Process Active Pipelines (Run AI)</span>
+                    </button>
+                    <p class="text-xs text-gray-500 mt-2 text-center">
+                        Instructs the AI agent to evaluate all active failed payments and draft recovery content.
+                    </p>
+                </div>
+
+                <!-- Simulation Generator -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4 flex items-center">
+                        <i class="fa-solid fa-bolt text-amber-500 mr-2"></i> Webhook Simulator
+                    </h2>
+
+                    <!-- Single Scenario triggers -->
+                    <div class="space-y-2 mb-6">
+                        <p class="text-sm font-semibold text-gray-600">Simulate Specific Payment Failure:</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="triggerScenario(0)" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-3 text-xs rounded border transition text-left">
+                                <i class="fa-solid fa-plug text-red-500 mr-1.5"></i> UPI Timeout
+                            </button>
+                            <button onclick="triggerScenario(1)" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-3 text-xs rounded border transition text-left">
+                                <i class="fa-solid fa-credit-card text-red-500 mr-1.5"></i> Insufficient Funds
+                            </button>
+                            <button onclick="triggerScenario(2)" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-3 text-xs rounded border transition text-left">
+                                <i class="fa-solid fa-cart-shopping text-red-500 mr-1.5"></i> Cart Abandon
+                            </button>
+                            <button onclick="triggerScenario(3)" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-3 text-xs rounded border transition text-left">
+                                <i class="fa-solid fa-calendar-xmark text-red-500 mr-1.5"></i> Sub Renewal Fail
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Batch triggers -->
+                    <div class="border-t pt-4">
+                        <p class="text-sm font-semibold text-gray-600 mb-2">Simulate Batch Recoveries:</p>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="batch-count" min="1" max="100" value="20" class="border rounded-md px-3 py-2 w-20 text-center text-sm outline-none focus:ring-1 focus:ring-indigo-500">
+                            <button onclick="triggerBatch()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-md shadow-sm transition text-sm">
+                                <i class="fa-solid fa-layer-group mr-1.5"></i> Trigger Batch failures
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1.5">
+                            Generates random payment fail webhooks to stress test AI recovery at scale.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Column: Pipelines List -->
+            <div class="lg:col-span-2 space-y-6">
+                
+                <!-- Main Container Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    
+                    <!-- Pipelines List Column -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h2 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4 flex items-center justify-between">
+                            <span><i class="fa-solid fa-list-check text-indigo-600 mr-2"></i> Pipelines</span>
+                            <span id="pipeline-count-badge" class="bg-indigo-100 text-indigo-800 text-xs px-2.5 py-0.5 rounded-full font-bold">0</span>
+                        </h2>
+                        
+                        <div class="overflow-y-auto max-h-[500px] space-y-3 pr-1" id="pipelines-list">
+                            <!-- Populated dynamically -->
+                            <p class="text-center text-gray-400 py-8 text-sm">No transactions simulated yet.</p>
+                        </div>
+                    </div>
+
+                    <!-- Selected Pipeline Details (Audit Trail) -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h2 class="text-lg font-bold text-gray-900 border-b pb-3 mb-4 flex items-center">
+                            <i class="fa-solid fa-clock-rotate-left text-indigo-600 mr-2"></i> Audit Trail & Logs
+                        </h2>
+
+                        <div id="empty-details" class="text-center text-gray-400 py-16 text-sm">
+                            <i class="fa-solid fa-magnifying-glass text-3xl mb-3 text-gray-300"></i>
+                            <p>Select a pipeline from the list to view its complete audit logs and AI agent messages.</p>
+                        </div>
+
+                        <div id="details-container" class="hidden space-y-6">
+                            <!-- Header Info -->
+                            <div class="bg-indigo-50 p-4 rounded-md border border-indigo-100">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-bold text-indigo-900 text-sm" id="detail-name">-</h3>
+                                        <p class="text-xs text-gray-500 mt-0.5" id="detail-phone">-</p>
+                                    </div>
+                                    <span class="text-xs font-bold px-2 py-1 rounded" id="detail-status-badge">-</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-indigo-200 text-xs">
+                                    <div><span class="text-gray-500">Order ID:</span> <strong id="detail-order-id">-</strong></div>
+                                    <div><span class="text-gray-500">Amount:</span> <strong id="detail-amount">-</strong></div>
+                                    <div><span class="text-gray-500">Code:</span> <code class="bg-indigo-100 text-indigo-800 px-1 py-0.5 rounded font-mono text-[10px]" id="detail-error-code">-</code></div>
+                                    <div><span class="text-gray-500">Stage:</span> <strong id="detail-stage">-</strong></div>
+                                </div>
+                                <div class="mt-2 text-xs border-t border-indigo-200 pt-2">
+                                    <span class="text-gray-500">Reason:</span> <span id="detail-desc" class="text-gray-700 italic"></span>
+                                </div>
+                            </div>
+
+                            <!-- Simulated Action Buttons for Customer -->
+                            <div class="border-b pb-4">
+                                <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Simulate Customer Actions:</p>
+                                <div class="flex space-x-2">
+                                    <button id="btn-simulate-pay" onclick="" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-3 rounded shadow transition">
+                                        <i class="fa-solid fa-link mr-1"></i> Customer Clicks Pay Link
+                                    </button>
+                                    <button id="btn-simulate-stop" onclick="" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold py-2 px-3 rounded transition">
+                                        <i class="fa-solid fa-ban mr-1"></i> Unsubscribe (STOP)
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Audit Timeline -->
+                            <div>
+                                <h4 class="text-xs font-semibold text-gray-500 uppercase mb-4">Event Flow Timeline</h4>
+                                <div id="timeline-flow" class="space-y-6 pl-4 relative">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Script layer -->
+    <script>
+        let currentPipelineId = null;
+
+        function makeLinksClickable(text) {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, function(url) {
+                return `<a href="${url}" target="_blank" class="text-indigo-600 hover:text-indigo-855 hover:underline font-semibold">${url}</a>`;
+            });
+        }
+        let autoRefreshInterval = null;
+
+        // Auto Refresh
+        window.onload = () => {
+            loadData();
+            // Poll for statistics every 3 seconds to show live updates
+            autoRefreshInterval = setInterval(loadData, 3000);
+            
+            // Check for recovery URL parameter (simulating customer pay link click)
+            const urlParams = new URLSearchParams(window.location.search);
+            const payId = urlParams.get('pay_pipeline_id');
+            if (payId) {
+                simulatePay(payId, true);
+            }
+        };
+
+        function loadData() {
+            fetch('/api/stats')
+                .then(r => r.json())
+                .then(stats => {
+                    document.getElementById('stat-total-leaked').innerText = '₹' + stats.total_leaked.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                    document.getElementById('stat-total-recovered').innerText = '₹' + stats.total_recovered.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                    document.getElementById('stat-recovery-rate').innerText = stats.recovery_rate + '%';
+                    
+                    document.getElementById('stat-active').innerText = stats.active_pipelines;
+                    document.getElementById('stat-recovered').innerText = stats.succeeded_pipelines;
+                    document.getElementById('stat-optout').innerText = stats.optout_pipelines;
+                    document.getElementById('stat-failed').innerText = stats.failed_pipelines;
+                });
+
+            fetch('/api/pipelines')
+                .then(r => r.json())
+                .then(pipelines => {
+                    document.getElementById('pipeline-count-badge').innerText = pipelines.length;
+                    const list = document.getElementById('pipelines-list');
+                    if (pipelines.length === 0) {
+                        list.innerHTML = '<p class="text-center text-gray-400 py-8 text-sm">No transactions simulated yet.</p>';
+                        return;
+                    }
+
+                    list.innerHTML = pipelines.map(p => {
+                        const statusColors = {
+                            'active': 'bg-blue-50 text-blue-700 border-blue-200',
+                            'succeeded': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                            'stopped_opt_out': 'bg-orange-50 text-orange-700 border-orange-200',
+                            'failed_max_retries': 'bg-gray-50 text-gray-600 border-gray-200'
+                        };
+                        const classSelected = currentPipelineId === p.id ? 'ring-2 ring-indigo-500' : '';
+                        return `
+                            <div onclick="selectPipeline(${p.id})" class="p-3 bg-white border rounded-lg cursor-pointer hover:shadow-md transition flex justify-between items-center ${classSelected}">
+                                <div class="space-y-1">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="font-bold text-gray-800 text-sm">${p.transaction.customer_name}</span>
+                                        <span class="text-xs text-gray-400">#${p.transaction.order_id}</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500 flex items-center space-x-2">
+                                        <span>₹${p.transaction.amount.toLocaleString('en-IN')}</span>
+                                        <span>•</span>
+                                        <span class="font-mono text-[10px] bg-red-50 text-red-600 px-1 rounded">${p.transaction.error_code.replace('BAD_REQUEST_', '')}</span>
+                                    </div>
+                                </div>
+                                <div class="text-right space-y-1">
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${statusColors[p.status] || 'bg-gray-100'}">
+                                        ${p.status.replace('_', ' ')}
+                                    </span>
+                                    <div class="text-[10px] text-gray-400">Stage ${p.current_stage - 1}/3</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    if (currentPipelineId) {
+                        refreshDetails(currentPipelineId);
+                    }
+                });
+        }
+
+        function selectPipeline(id) {
+            currentPipelineId = id;
+            document.getElementById('empty-details').classList.add('hidden');
+            document.getElementById('details-container').classList.remove('hidden');
+            loadData(); // Highlight selected in list
+            refreshDetails(id);
+        }
+
+        function refreshDetails(id) {
+            fetch(`/api/pipelines/${id}`)
+                .then(r => r.json())
+                .then(p => {
+                    document.getElementById('detail-name').innerText = p.transaction.customer_name;
+                    document.getElementById('detail-phone').innerText = `${p.transaction.customer_phone} | ${p.transaction.customer_email}`;
+                    document.getElementById('detail-order-id').innerText = p.transaction.order_id;
+                    document.getElementById('detail-amount').innerText = '₹' + p.transaction.amount.toLocaleString('en-IN');
+                    document.getElementById('detail-error-code').innerText = p.transaction.error_code;
+                    document.getElementById('detail-desc').innerText = p.transaction.error_description;
+                    document.getElementById('detail-stage').innerText = `${p.current_stage - 1} / ${p.max_stages}`;
+
+                    // Update action buttons click handlers
+                    document.getElementById('btn-simulate-pay').setAttribute('onclick', `simulatePay(${p.id})`);
+                    document.getElementById('btn-simulate-stop').setAttribute('onclick', `simulateOptout(${p.id})`);
+
+                    if (p.status !== 'active') {
+                        document.getElementById('btn-simulate-pay').disabled = true;
+                        document.getElementById('btn-simulate-stop').disabled = true;
+                        document.getElementById('btn-simulate-pay').classList.add('opacity-40', 'cursor-not-allowed');
+                        document.getElementById('btn-simulate-stop').classList.add('opacity-40', 'cursor-not-allowed');
+                    } else {
+                        document.getElementById('btn-simulate-pay').disabled = false;
+                        document.getElementById('btn-simulate-stop').disabled = false;
+                        document.getElementById('btn-simulate-pay').classList.remove('opacity-40', 'cursor-not-allowed');
+                        document.getElementById('btn-simulate-stop').classList.remove('opacity-40', 'cursor-not-allowed');
+                    }
+
+                    const statusBadge = document.getElementById('detail-status-badge');
+                    statusBadge.innerText = p.status.toUpperCase().replace(/_/g, ' ');
+                    statusBadge.className = 'text-xs font-bold px-2.5 py-1 rounded-full ';
+                    if (p.status === 'active') statusBadge.classList.add('bg-blue-100', 'text-blue-800');
+                    else if (p.status === 'succeeded') statusBadge.classList.add('bg-emerald-100', 'text-emerald-800');
+                    else if (p.status === 'stopped_opt_out') statusBadge.classList.add('bg-orange-100', 'text-orange-800');
+                    else statusBadge.classList.add('bg-gray-100', 'text-gray-800');
+
+                    // Combine audit logs and messages for a single timeline
+                    const events = [];
+                    p.audit_logs.forEach(a => {
+                        events.push({
+                            type: 'audit',
+                            event_type: a.event_type,
+                            desc: a.description,
+                            time: a.timestamp
+                        });
+                    });
+                    p.message_logs.forEach(m => {
+                        events.push({
+                            type: 'message',
+                            channel: m.channel,
+                            content: m.content,
+                            status: m.status,
+                            time: m.sent_at
+                        });
+                    });
+
+                    // Sort chronologically (ascending time)
+                    events.sort((a, b) => new Date(a.time) - new Date(b.time));
+
+                    const timeline = document.getElementById('timeline-flow');
+                    if (events.length === 0) {
+                        timeline.innerHTML = '<p class="text-xs text-gray-400">No events logged yet.</p>';
+                        return;
+                    }
+
+                    timeline.innerHTML = events.map(ev => {
+                        if (ev.type === 'audit') {
+                            let icon = 'fa-circle-info text-indigo-500';
+                            let bg = 'bg-indigo-50 border-indigo-100';
+                            
+                            if (ev.event_type === 'WEBHOOK_RECEIVED') {
+                                icon = 'fa-webhook text-red-500';
+                                bg = 'bg-red-50 border-red-100';
+                            } else if (ev.event_type === 'AGENT_DIAGNOSIS') {
+                                icon = 'fa-brain text-purple-500';
+                                bg = 'bg-purple-50 border-purple-100';
+                            } else if (ev.event_type === 'PAYMENT_RECOVERED') {
+                                icon = 'fa-check-circle text-emerald-500';
+                                bg = 'bg-emerald-50 border-emerald-100';
+                            } else if (ev.event_type === 'STOPPING_RULE_TRIGGERED') {
+                                icon = 'fa-ban text-orange-500';
+                                bg = 'bg-orange-50 border-orange-100';
+                            }
+
+                            return `
+                                <div class="timeline-item relative flex items-start space-x-3 text-xs">
+                                    <div class="w-8 h-8 rounded-full border flex items-center justify-center bg-white shadow-sm z-10">
+                                        <i class="fa-solid ${icon}"></i>
+                                    </div>
+                                    <div class="flex-1 p-3 rounded-md border ${bg}">
+                                        <div class="flex justify-between font-semibold mb-1">
+                                            <span class="text-gray-700">${ev.event_type.replace(/_/g, ' ')}</span>
+                                            <span class="text-[10px] text-gray-400 font-normal">${ev.time.split(' ')[1]}</span>
+                                        </div>
+                                        <p class="text-gray-600 leading-relaxed">${ev.desc}</p>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            let icon = 'fa-comment-sms text-blue-500';
+                            if (ev.channel === 'Email') icon = 'fa-envelope text-sky-500';
+                            if (ev.channel === 'WhatsApp') icon = 'fa-whatsapp text-emerald-500';
+
+                            return `
+                                <div class="timeline-item relative flex items-start space-x-3 text-xs">
+                                    <div class="w-8 h-8 rounded-full border flex items-center justify-center bg-white shadow-sm z-10">
+                                        <i class="fa-solid ${icon}"></i>
+                                    </div>
+                                    <div class="flex-1 p-3 rounded-md border bg-blue-50 border-blue-100">
+                                        <div class="flex justify-between font-semibold mb-1">
+                                            <span class="text-blue-700">SENT RECOVERY ${ev.channel.toUpperCase()}</span>
+                                            <span class="text-[10px] text-gray-400 font-normal">${ev.time.split(' ')[1]}</span>
+                                        </div>
+                                        <p class="text-gray-700 leading-relaxed bg-white p-2 rounded border border-blue-200 mt-1 font-mono text-[11px] select-all whitespace-pre-wrap">${makeLinksClickable(ev.content)}</p>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }).join('');
+                });
+        }
+
+        // Action controls
+        function triggerScenario(index) {
+            fetch(`/api/simulator/trigger-single?scenario_index=${index}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(d => {
+                    loadData();
+                    selectPipeline(d.pipeline_id);
+                });
+        }
+
+        function triggerBatch() {
+            const count = document.getElementById('batch-count').value;
+            fetch(`/api/simulator/trigger-batch?count=${count}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(d => {
+                    loadData();
+                });
+        }
+
+        function processActivePipelines() {
+            fetch('/api/pipelines/process-active', { method: 'POST' })
+                .then(r => r.json())
+                .then(d => {
+                    alert(d.message);
+                    loadData();
+                });
+        }
+
+        function simulatePay(pipelineId, redirectAlert = false) {
+            fetch(`/api/simulator/pay/${pipelineId}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(d => {
+                    if (redirectAlert) {
+                        alert("Simulated Customer Payment Successful! Recovery recorded.");
+                        window.location.search = ""; // clear URL
+                    } else {
+                        loadData();
+                    }
+                });
+        }
+
+        function simulateOptout(pipelineId) {
+            fetch(`/api/simulator/optout/${pipelineId}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(d => {
+                    loadData();
+                });
+        }
+    </script>
+</body>
+</html>
