@@ -32,9 +32,11 @@
             <span class="font-bold text-xl tracking-wider">Razorpay AI Revenue Recovery Hub</span>
             <span class="bg-indigo-900 text-xs px-2.5 py-1 rounded-full font-semibold border border-indigo-500">Track 3</span>
         </div>
-        <div class="flex items-center space-x-4">
-            <span class="text-sm opacity-90"><i class="fa-regular fa-clock mr-1.5"></i>2026 Buildathon</span>
-            <button onclick="loadData()" class="bg-indigo-600 hover:bg-indigo-500 border border-indigo-500 rounded-md px-3 py-1.5 text-sm transition font-semibold">
+        <div class="flex items-center space-x-3">
+            <button onclick="resetDemoData()" class="bg-red-600 hover:bg-red-700 border border-red-500 rounded-md px-3 py-1.5 text-xs transition font-semibold">
+                <i class="fa-solid fa-trash-can mr-1"></i> Reset Demo
+            </button>
+            <button onclick="loadData()" class="bg-indigo-600 hover:bg-indigo-500 border border-indigo-500 rounded-md px-3 py-1.5 text-xs transition font-semibold">
                 <i class="fa-solid fa-rotate mr-1"></i> Refresh
             </button>
         </div>
@@ -475,12 +477,31 @@
         }
 
         function processActivePipelines() {
-            fetch('/api/pipelines/process-active', { method: 'POST' })
+            const url = currentPipelineId 
+                ? `/api/pipelines/process-active?pipeline_id=${currentPipelineId}`
+                : '/api/pipelines/process-active';
+            fetch(url, { method: 'POST' })
                 .then(r => r.json())
                 .then(d => {
                     alert(d.message);
                     loadData();
+                    if (currentPipelineId) {
+                        refreshDetails(currentPipelineId);
+                    }
                 });
+        }
+
+        function resetDemoData() {
+            if (confirm("Reset all test transactions and logs for a clean recording?")) {
+                fetch('/api/simulator/reset', { method: 'POST' })
+                    .then(r => r.json())
+                    .then(d => {
+                        currentPipelineId = null;
+                        document.getElementById('empty-details').classList.remove('hidden');
+                        document.getElementById('details-container').classList.add('hidden');
+                        loadData();
+                    });
+            }
         }
 
         function simulatePay(pipelineId, redirectAlert = false) {

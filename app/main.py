@@ -226,13 +226,30 @@ def simulate_optout(pipeline_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Cannot opt out of inactive/non-existent pipeline")
     return {"message": "Opt-out simulation successful"}
 
-@app.post("/api/pipelines/process-active")
-def process_active_pipelines(db: Session = Depends(get_db)):
+@app.post("/api/simulator/reset")
+def reset_database(db: Session = Depends(get_db)):
     """
-    Ticks the state machine forward: runs the AI agent diagnosis for all active pipelines,
+    Clears all mock transactions, pipelines, and logs so you have a fresh dashboard for recording.
+    """
+    db.query(AuditLog).delete()
+    db.query(MessageLog).delete()
+    db.query(RecoveryPipeline).delete()
+    db.query(Transaction).delete()
+    db.commit()
+    return {"message": "Demo data reset successfully! Dashboard is now fresh."}
+
+@app.post("/api/pipelines/process-active")
+def process_active_pipelines(pipeline_id: Optional[int] = Query(None), db: Session = Depends(get_db)):
+    """
+    Ticks the state machine forward: runs the AI agent diagnosis for active pipelines,
     schedules the recovery communication and advances the pipeline stage.
     """
-    active_pipelines = db.query(RecoveryPipeline).filter(RecoveryPipeline.status == "active").all()
+    if pipeline_id:
+        active_pipelines = db.query(RecoveryPipeline).filter(RecoveryPipeline.id == pipeline_id, RecoveryPipeline.status == "active").all()
+    else:
+        # Limit to the most recent 5 active pipelines so the request responds immediately
+        active_pipelines = db.query(RecoveryPipeline).filter(RecoveryPipeline.status == "active").order_by(RecoveryPipeline.id.desc()).limit(5).all()
+        
     processed_count = 0
     
     for pipeline in active_pipelines:
@@ -245,35 +262,22 @@ def process_active_pipelines(db: Session = Depends(get_db)):
             # Pipeline was stopped by agent rules (max stage or opt out)
             continue
             
-        # Generate recovery URL (use real Razorpay if configured, else fallback to mock)
+        # Generate recovery URL (use real Razorpay Order API if configured)
         recovery_url = f"http://localhost:8000/?pay_pipeline_id={pipeline.id}"
         if razorpay_client is not None:
             try:
-                link_data = {
+                order_data = {
                     "amount": int(tx.amount * 100), # in paise
                     "currency": "INR",
-                    "accept_partial": False,
-                    "description": f"AI Recovery for Order {tx.order_id}",
-                    "customer": {
-                        "name": tx.customer_name,
-                        "email": tx.customer_email,
-                        "contact": tx.customer_phone
-                    },
-                    "notify": {
-                        "sms": False,
-                        "email": False
-                    },
-                    "reminder_enable": False,
+                    "receipt": f"rcpt_{pipeline.id}_{tx.order_id}",
                     "notes": {
                         "pipeline_id": str(pipeline.id)
-                    },
-                    "callback_url": f"http://localhost:8000/api/recovery/callback?pipeline_id={pipeline.id}",
-                    "callback_method": "get"
+                    }
                 }
-                payment_link = razorpay_client.payment_link.create(link_data)
-                recovery_url = payment_link.get("short_url", recovery_url)
+                rzp_order = razorpay_client.order.create(order_data)
+                recovery_url = f"http://localhost:8000/checkout/{pipeline.id}?order_id={rzp_order['id']}"
             except Exception as e:
-                print(f"Error creating Razorpay Payment Link: {e}. Falling back to mock link.")
+                print(f"Error creating Razorpay Order: {e}. Falling back to mock link.")
 
         custom_message = strategy.message_content.replace("[recovery_url]", recovery_url)
         
@@ -302,6 +306,82 @@ def process_active_pipelines(db: Session = Depends(get_db)):
         processed_count += 1
         
     return {"message": f"Successfully processed {processed_count} active pipelines."}
+
+@app.get("/checkout/{pipeline_id}", response_class=HTMLResponse)
+def checkout_page(pipeline_id: int, order_id: Optional[str] = Query(None), db: Session = Depends(get_db)):
+    """
+    Renders the official Razorpay Checkout modal for a recovered order.
+    """
+    pipeline = db.query(RecoveryPipeline).filter(RecoveryPipeline.id == pipeline_id).first()
+    if not pipeline:
+        raise HTTPException(status_code=404, detail="Pipeline not found")
+        
+    tx = pipeline.transaction
+    amount_paise = int(tx.amount * 100)
+    key_id = RAZORPAY_KEY_ID or "rzp_test_TUnhu3mqUdi6HT"
+    
+    return HTMLResponse(content=f"""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Razorpay Secure Recovery Checkout</title>
+            <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+            <script src="https://cdn.tailwindcss.com"></script>
+        </head>
+        <body class="bg-gray-100 min-h-screen flex items-center justify-center font-sans p-4">
+            <div class="bg-white p-8 rounded-2xl shadow-xl border border-indigo-100 max-w-md w-full text-center">
+                <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 font-extrabold text-2xl shadow-inner">
+                    ₹
+                </div>
+                <h2 class="text-xl font-bold text-gray-900 mb-1">Razorpay AI Recovery</h2>
+                <p class="text-xs text-gray-500 mb-6">Order #{tx.order_id} • Amount: ₹{tx.amount:.2f}</p>
+                
+                <div class="bg-indigo-50/70 p-4 rounded-xl border border-indigo-100 text-left text-xs mb-6 space-y-2">
+                    <div class="flex justify-between"><span class="text-gray-500">Customer:</span> <span class="font-bold text-gray-800">{tx.customer_name}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500">Contact:</span> <span class="text-gray-700">{tx.customer_phone}</span></div>
+                    <div class="flex justify-between border-t border-indigo-200 pt-2"><span class="text-gray-500 font-medium">Total Amount:</span> <span class="font-extrabold text-indigo-700 text-sm">₹{tx.amount:.2f}</span></div>
+                </div>
+
+                <button id="rzp-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition text-sm flex items-center justify-center space-x-2">
+                    <span>Pay with Razorpay</span>
+                </button>
+                <p class="text-[11px] text-gray-400 mt-4">Secured by Razorpay Payments</p>
+            </div>
+
+            <script>
+            var options = {{
+                "key": "{key_id}",
+                "amount": "{amount_paise}",
+                "currency": "INR",
+                "name": "Razorpay Merchant Store",
+                "description": "Recovery for Order #{tx.order_id}",
+                {f'"order_id": "{order_id}",' if order_id else ''}
+                "handler": function (response){{
+                    window.location.href = "/api/recovery/callback?pipeline_id={pipeline.id}&razorpay_payment_id=" + (response.razorpay_payment_id || "pay_test_success");
+                }},
+                "prefill": {{
+                    "name": "{tx.customer_name}",
+                    "email": "{tx.customer_email}",
+                    "contact": "{tx.customer_phone}"
+                }},
+                "theme": {{
+                    "color": "#4338ca"
+                }}
+            }};
+            var rzp1 = new Razorpay(options);
+            document.getElementById('rzp-button').onclick = function(e){{
+                rzp1.open();
+                e.preventDefault();
+            }};
+            window.onload = function() {{
+                rzp1.open();
+            }};
+            </script>
+        </body>
+        </html>
+    """)
 
 @app.get("/api/recovery/callback")
 def recovery_callback(pipeline_id: int, razorpay_payment_id: Optional[str] = None, db: Session = Depends(get_db)):
