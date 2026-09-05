@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Revenue Recovery - Presentation Deck</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .slide { display: none; }
+        .slide.active { display: flex; }
+    </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col justify-between font-sans select-none overflow-hidden">
+
+    <!-- Top Slide Header -->
+    <header class="p-6 flex justify-between items-center border-b border-slate-800 bg-slate-900/50 backdrop-blur-md">
+        <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-shield-halved text-yellow-400 text-xl"></i>
+            <span class="font-bold text-sm tracking-wider uppercase text-slate-300">Razorpay Buildathon 2026 • Track 3</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span id="slide-num" class="text-xs font-mono font-bold bg-indigo-900/80 border border-indigo-500 text-indigo-200 px-3 py-1 rounded-full">Slide 1 / 5</span>
+            <a href="http://localhost:8000" target="_blank" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-1.5 rounded-md font-semibold transition flex items-center space-x-1.5">
+                <i class="fa-solid fa-gauge"></i>
+                <span>Open Dashboard</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Slides Container -->
+    <main class="flex-1 flex items-center justify-center p-8 max-w-6xl mx-auto w-full">
+
+        <!-- SLIDE 1: Title -->
+        <div id="slide-1" class="slide active flex-col items-center text-center space-y-6 animate-fade">
+            <span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 text-xs px-4 py-1.5 rounded-full font-bold uppercase tracking-widest">
+                AI Revenue Recovery Agent
+            </span>
+            <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight max-w-4xl">
+                Autonomous, Intelligent & Compliant Recovery for <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-sky-400">Razorpay Merchants</span>
+            </h1>
+            <p class="text-lg text-slate-400 max-w-2xl">
+                Plugging the leaky checkout funnel using agentic AI reasoning, real Razorpay transactional APIs, and strict safety guardrails.
+            </p>
+            <div class="pt-6 border-t border-slate-800 flex items-center space-x-3 text-sm font-semibold text-slate-300">
+                <i class="fa-solid fa-user-circle text-indigo-400 text-xl"></i>
+                <span>Presented by: <strong class="text-white font-bold">Kashish Jindal</strong></span>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: The Problem -->
+        <div id="slide-2" class="slide flex-col space-y-8 w-full animate-fade">
+            <div class="border-l-4 border-red-500 pl-4">
+                <span class="text-xs text-red-400 font-bold uppercase tracking-widest">The Problem</span>
+                <h2 class="text-4xl font-extrabold text-white">The Leaky Checkout Funnel</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-3">
+                    <div class="w-12 h-12 bg-red-500/10 text-red-400 rounded-xl flex items-center justify-center text-2xl font-bold">
+                        15%
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Lost Merchant Sales</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Merchants lose 10% to 15% of revenue to failed checkouts: UPI bank network downtime, card limit declines, and cart drop-offs.
+                    </p>
+                </div>
+
+                <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-3">
+                    <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-xl flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-envelope-open-text"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Static & "Dumb" Tools</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Existing recovery tools blast identical, static email templates to everyone—ignoring root cause, bank health, and context.
+                    </p>
+                </div>
+
+                <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-3">
+                    <div class="w-12 h-12 bg-indigo-500/10 text-indigo-400 rounded-xl flex items-center justify-center text-2xl">
+                        <i class="fa-solid fa-ban"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-white">Spam & Compliance Risk</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Unregulated retries annoy customers, violate communication compliance, and damage the merchant's brand reputation.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: The Solution -->
+        <div id="slide-3" class="slide flex-col space-y-8 w-full animate-fade">
+            <div class="border-l-4 border-indigo-500 pl-4">
+                <span class="text-xs text-indigo-400 font-bold uppercase tracking-widest">Our Solution</span>
+                <h2 class="text-4xl font-extrabold text-white">Autonomous AI Revenue Recovery</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl flex items-start space-x-4">
+                    <div class="p-3 bg-indigo-600/20 text-indigo-400 rounded-xl text-xl"><i class="fa-solid fa-brain"></i></div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">AI Root-Cause Diagnosis</h3>
+                        <p class="text-xs text-slate-400 mt-1">Evaluates exact Razorpay error codes (UPI timeout vs. limit decline) and determines optimal channel & cooldown wait times.</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl flex items-start space-x-4">
+                    <div class="p-3 bg-emerald-600/20 text-emerald-400 rounded-xl text-xl"><i class="fa-solid fa-credit-card"></i></div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">Real Razorpay Integration</h3>
+                        <p class="text-xs text-slate-400 mt-1">Calls official Razorpay Orders API to dynamically generate secure checkout sessions matching the transaction amount.</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl flex items-start space-x-4">
+                    <div class="p-3 bg-amber-600/20 text-amber-400 rounded-xl text-xl"><i class="fa-solid fa-comments"></i></div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">Adaptive Hinglish Messaging</h3>
+                        <p class="text-xs text-slate-400 mt-1">Generates high-converting, personalized messages tailored for Indian phone numbers to win back distracted buyers.</p>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl flex items-start space-x-4">
+                    <div class="p-3 bg-sky-600/20 text-sky-400 rounded-xl text-xl"><i class="fa-solid fa-shield-check"></i></div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">Strict Compliance Guardrails</h3>
+                        <p class="text-xs text-slate-400 mt-1">Terminates after 3 attempts and stops instantly if a customer replies 'STOP' to guarantee zero spam.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: Architecture -->
+        <div id="slide-4" class="slide flex-col space-y-8 w-full animate-fade">
+            <div class="border-l-4 border-emerald-500 pl-4">
+                <span class="text-xs text-emerald-400 font-bold uppercase tracking-widest">Workflow</span>
+                <h2 class="text-4xl font-extrabold text-white">The 4-Step Recovery Loop</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 pt-2">
+                <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-2">
+                    <span class="text-amber-400 font-bold text-xs">STEP 1</span>
+                    <h3 class="font-bold text-white text-sm">Payment Fails</h3>
+                    <p class="text-[11px] text-slate-400">Razorpay sends webhook event (or triggered via simulator). Logged under Revenue at Risk.</p>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-2">
+                    <span class="text-indigo-400 font-bold text-xs">STEP 2</span>
+                    <h3 class="font-bold text-white text-sm">AI Diagnoses</h3>
+                    <p class="text-[11px] text-slate-400">Agent evaluates error codes, cooldown timer, channel, and drafts Hinglish recovery copy.</p>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-2">
+                    <span class="text-sky-400 font-bold text-xs">STEP 3</span>
+                    <h3 class="font-bold text-white text-sm">Checkout Created</h3>
+                    <p class="text-[11px] text-slate-400">Official Razorpay Order ID & Checkout popup generated dynamically with order metadata.</p>
+                </div>
+                <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-2">
+                    <span class="text-emerald-400 font-bold text-xs">STEP 4</span>
+                    <h3 class="font-bold text-white text-sm">Payment Saved</h3>
+                    <p class="text-[11px] text-slate-400">Customer pays -> Razorpay redirect marks order recovered live on dashboard stats.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: Conclusion -->
+        <div id="slide-5" class="slide flex-col items-center text-center space-y-6 w-full animate-fade">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-white">
+                Recovering Margin. <span class="text-indigo-400">Respecting Customers.</span>
+            </h2>
+            <div class="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl max-w-xl text-left space-y-3 text-sm text-slate-300">
+                <div class="flex items-center space-x-2 text-emerald-400 font-semibold"><i class="fa-solid fa-circle-check"></i> <span>Measurable batch recoveries tracked in real-time</span></div>
+                <div class="flex items-center space-x-2 text-emerald-400 font-semibold"><i class="fa-solid fa-circle-check"></i> <span>Powered by Google Gemini & Official Razorpay SDK</span></div>
+                <div class="flex items-center space-x-2 text-emerald-400 font-semibold"><i class="fa-solid fa-circle-check"></i> <span>Full audit trail and compliance stopping rules</span></div>
+            </div>
+            <div class="pt-4">
+                <p class="text-xs text-slate-400 mb-1 font-mono uppercase">Open Source Repository</p>
+                <a href="https://github.com/KashishJindal20/razorpay-revenue-recovery" target="_blank" class="text-indigo-400 hover:text-indigo-300 font-mono text-sm underline font-bold">
+                    https://github.com/KashishJindal20/razorpay-revenue-recovery
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Controls Footer -->
+    <footer class="p-6 flex justify-between items-center border-t border-slate-800 bg-slate-900/50 backdrop-blur-md">
+        <div class="text-xs text-slate-500">
+            Use <kbd class="px-2 py-1 bg-slate-800 border border-slate-700 rounded text-slate-300 font-mono">←</kbd> <kbd class="px-2 py-1 bg-slate-800 border border-slate-700 rounded text-slate-300 font-mono">→</kbd> or Click to navigate
+        </div>
+        <div class="flex space-x-3">
+            <button onclick="prevSlide()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold transition flex items-center space-x-1.5">
+                <i class="fa-solid fa-chevron-left"></i>
+                <span>Previous</span>
+            </button>
+            <button onclick="nextSlide()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold transition flex items-center space-x-1.5 shadow-lg shadow-indigo-600/30">
+                <span>Next Slide</span>
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+    </footer>
+
+    <!-- Presentation Script -->
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 5;
+
+        function showSlide(n) {
+            if (n < 1) n = 1;
+            if (n > totalSlides) n = totalSlides;
+            currentSlide = n;
+
+            for (let i = 1; i <= totalSlides; i++) {
+                const s = document.getElementById('slide-' + i);
+                if (s) {
+                    s.classList.remove('active');
+                }
+            }
+            const active = document.getElementById('slide-' + currentSlide);
+            if (active) active.classList.add('active');
+
+            document.getElementById('slide-num').innerText = `Slide ${currentSlide} / ${totalSlides}`;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Keyboard navigation
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -101,6 +101,14 @@ def get_dashboard():
             return HTMLResponse(content=f.read())
     return HTMLResponse(content="<h1>Dashboard Template Not Found. Please create templates/index.html</h1>", status_code=404)
 
+@app.get("/slides", response_class=HTMLResponse)
+def get_slides():
+    template_path = os.path.join("templates", "slides.html")
+    if os.path.exists(template_path):
+        with open(template_path, "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return HTMLResponse(content="<h1>Slides Template Not Found. Please create templates/slides.html</h1>", status_code=404)
+
 @app.get("/api/stats")
 def get_stats(db: Session = Depends(get_db)):
     txs = db.query(Transaction).all()
